@@ -1,0 +1,4 @@
+.venv/
+.idea
+musor/
+__pycache__/
