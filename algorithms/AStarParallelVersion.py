@@ -3,7 +3,6 @@ import random
 from multiprocessing import Pool
 
 from matplotlib import pyplot as plt
-import threading
 
 
 def generate_large_matrix(size, obstacle_chance=0.3):
@@ -38,7 +37,7 @@ def neighbors(matrix, node):
 
 
 def a_star(matrix, start, end):
-    # print('Successfully achieved solution from {} to {}'.format(start, end))
+    print('Successfully achieved solution from {} to {}'.format(start, end))
 
     queue = [(manhattan_distance(start, end), 0, start)]
     came_from = {start: None}
@@ -76,14 +75,7 @@ def visualize_matrix_and_path(matrix, paths=None):
     plt.show()
 
 
-# def threaded_a_star(args):
-#     matrix, start, end = args
-#     return a_star(matrix, start, end)
-
-
 def parallel_a_star(matrix, start, end, num_threads):
-    # results = [None] * num_threads
-    # threads = []
     endpoints = []
 
     for i in range(1, num_threads):
@@ -112,18 +104,9 @@ def parallel_a_star(matrix, start, end, num_threads):
         else:
             sub_start = endpoints[i - 1]
         sub_goal = endpoints[i]
-
         args.append((matrix, sub_start, sub_goal))
-        # print(args)
+
     with Pool(processes=num_threads) as pool:
         results = pool.starmap(a_star, args)
 
-        # t = threading.Thread(target=threaded_a_star, args=(matrix, sub_start, sub_goal, results, i))
-        # threads.append(t)
-        # t.start()
-
-    # for t in threads:
-    #     t.join()
-
-    # print('Successfully parallel solution from {} to {}'.format(start, end))
     return results
