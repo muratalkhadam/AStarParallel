@@ -1,5 +1,7 @@
 import heapq
 import random
+from multiprocessing import Pool
+
 from matplotlib import pyplot as plt
 import threading
 
@@ -74,14 +76,14 @@ def visualize_matrix_and_path(matrix, paths=None):
     plt.show()
 
 
-def threaded_a_star(matrix, start, goal, results, index):
-    path = a_star(matrix, start, goal)
-    results[index] = path
+# def threaded_a_star(args):
+#     matrix, start, end = args
+#     return a_star(matrix, start, end)
 
 
 def parallel_a_star(matrix, start, end, num_threads):
-    results = [None] * num_threads
-    threads = []
+    # results = [None] * num_threads
+    # threads = []
     endpoints = []
 
     for i in range(1, num_threads):
@@ -103,6 +105,7 @@ def parallel_a_star(matrix, start, end, num_threads):
 
     endpoints.append(end)
 
+    args = []
     for i in range(num_threads):
         if i == 0:
             sub_start = start
@@ -110,12 +113,17 @@ def parallel_a_star(matrix, start, end, num_threads):
             sub_start = endpoints[i - 1]
         sub_goal = endpoints[i]
 
-        t = threading.Thread(target=threaded_a_star, args=(matrix, sub_start, sub_goal, results, i))
-        threads.append(t)
-        t.start()
+        args.append((matrix, sub_start, sub_goal))
+        # print(args)
+    with Pool(processes=num_threads) as pool:
+        results = pool.starmap(a_star, args)
 
-    for t in threads:
-        t.join()
+        # t = threading.Thread(target=threaded_a_star, args=(matrix, sub_start, sub_goal, results, i))
+        # threads.append(t)
+        # t.start()
+
+    # for t in threads:
+    #     t.join()
 
     # print('Successfully parallel solution from {} to {}'.format(start, end))
     return results
