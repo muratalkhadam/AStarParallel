@@ -75,11 +75,11 @@ def visualize_matrix_and_path(matrix, paths=None):
     plt.show()
 
 
-def parallel_a_star(matrix, start, end, num_threads):
+def parallel_a_star(matrix, start, end, num_processes):
     endpoints = []
 
-    for i in range(1, num_threads):
-        num = i * len(matrix) // num_threads
+    for i in range(1, num_processes):
+        num = i * len(matrix) // num_processes
         temp = (num, num)
 
         if matrix[temp[0]][temp[1]] == 0:
@@ -98,15 +98,16 @@ def parallel_a_star(matrix, start, end, num_threads):
     endpoints.append(end)
 
     args = []
-    for i in range(num_threads):
+    for i in range(num_processes):
         if i == 0:
             sub_start = start
         else:
             sub_start = endpoints[i - 1]
         sub_goal = endpoints[i]
         args.append((matrix, sub_start, sub_goal))
+        print('Successfully achieved parallel solution from {} to {}'.format(sub_start, sub_goal))
 
-    with Pool(processes=num_threads) as pool:
+    with Pool(processes=num_processes) as pool:
         results = pool.starmap(a_star, args)
 
     return results
